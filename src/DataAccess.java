@@ -116,6 +116,9 @@ public class DataAccess {
             // Add another item
             item = newOrganization("fake organization name", "123 nonexistent avenue", "abc123", "Needle exchange", "Rehabilitation");
             addItem(tableName, dynamoDB, item);
+		
+	    //delete an item
+            deleteItem(tableName, dynamoDB, "fake organization name");
 
             //print all the stuff in the table with tablename
             printAll(tableName, dynamoDB);
@@ -171,7 +174,26 @@ public class DataAccess {
         PutItemResult putItemResult = dynamoDB.putItem(putItemRequest);
         System.out.println("Result: " + putItemResult);
     }
-    
+    public static void deleteItem(String tableName, AmazonDynamoDBClient dynamoDB, String primaryKey) {
+    	/**
+    	 * Given a table name and a primary key, delete the item from the database
+    	 * if it exists, otherwise do nothing. 
+    	 */
+    		DeleteItemSpec deleteItemSpec = new DeleteItemSpec()
+                .withPrimaryKey(new PrimaryKey("name", primaryKey));
+    		DynamoDB dynamo = new DynamoDB(dynamoDB);
+    		Table table = dynamo.getTable(tableName);
+
+            try {
+                System.out.println("Attempting a conditional delete...");
+                table.deleteItem(deleteItemSpec);
+                System.out.println("DeleteItem succeeded");
+            }
+            catch (Exception e) {
+                System.err.println("Unable to delete item: " + primaryKey);
+                System.err.println(e.getMessage());
+            }
+    }
     
 
 }
