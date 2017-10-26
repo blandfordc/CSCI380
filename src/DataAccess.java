@@ -18,7 +18,10 @@ import com.amazonaws.services.dynamodbv2.model.CreateTableRequest;
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.document.PrimaryKey;
 import com.amazonaws.services.dynamodbv2.document.Table;
+import com.amazonaws.services.dynamodbv2.document.UpdateItemOutcome;
 import com.amazonaws.services.dynamodbv2.document.spec.DeleteItemSpec;
+import com.amazonaws.services.dynamodbv2.document.spec.GetItemSpec;
+import com.amazonaws.services.dynamodbv2.document.spec.UpdateItemSpec;
 import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
 import com.amazonaws.services.dynamodbv2.model.DescribeTableRequest;
 import com.amazonaws.services.dynamodbv2.model.KeySchemaElement;
@@ -123,6 +126,12 @@ public class DataAccess {
             item = newOrganization("fake organization name", "123 nonexistent avenue", "abc123", "Needle exchange", "Rehabilitation");
             addItem(tableName, dynamoDB, item);
 		
+	    //get an item
+            getItemByPrimaryKey(tableName, dynamoDB, "fake organization name");
+            
+            //update an item
+            updateItem(tableName, dynamoDB, "fake organization name", "fake service updated!");
+		
 	    //delete an item
             deleteItem(tableName, dynamoDB, "fake organization name");
 
@@ -200,7 +209,51 @@ public class DataAccess {
                 System.err.println(e.getMessage());
             }
     }
-    
+        public static void getItemByPrimaryKey(String tableName, AmazonDynamoDBClient dynamoDB, String primaryKey) {
+    	/**
+    	 * Given a table and a primary key, access the item from the database
+    	 * If nothing exists, don't do anything.
+    	 */
+    	GetItemSpec getItemSpec = new GetItemSpec()
+    			.withPrimaryKey(new PrimaryKey("name", primaryKey));
+    	 DynamoDB dynamo = new DynamoDB(dynamoDB);
+         Table table = dynamo.getTable(tableName);
+        try {
+            System.out.println("Attempting to read the item...");
+            Item outcome = table.getItem(getItemSpec);
+            System.out.println("GetItem succeeded: " + outcome);
+            
+        }
+        catch (Exception e) {
+            System.err.println("Unable to read item: " + primaryKey);
+            System.err.println(e.getMessage());
+        }    	
+    }
+   public static void updateItem(String tableName, AmazonDynamoDBClient dynamoDB, String primaryKey, String... service1) {
+	   /**
+	    * A method to update our agencies after they have been looked up by their primary key.
+	    * To update agencies in real time.
+	    * As long as an item exists in the table with that primary key, the item will be updated.
+	    * Otherwise, a new item will be created with specified primary key and attributes.
+	    */
+	   
+       UpdateItemSpec updateItemSpec = new UpdateItemSpec().withPrimaryKey(new PrimaryKey("name", primaryKey))
+    	   .withUpdateExpression("set services = service1")
+    	   .withValueMap(new ValueMap().withStringSet("services", service1))
+           .withReturnValues(ReturnValue.UPDATED_NEW);
+       DynamoDB dynamo = new DynamoDB(dynamoDB);
+       Table table = dynamo.getTable(tableName);
+
+       try {
+           System.out.println("Updating the item...");
+           UpdateItemOutcome outcome = table.updateItem(updateItemSpec);
+           System.out.println("UpdateItem succeeded:\n" + outcome.getItem().toJSONPretty());
+       }
+       catch (Exception e) {
+           System.err.println("Unable to update item: " + primaryKey);
+           System.err.println(e.getMessage());
+       }
+   }
 
 }
 
