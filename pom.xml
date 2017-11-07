@@ -9,6 +9,7 @@
   <url>http://maven.apache.org</url>
   <properties>
     <tomcat.version>8.5.2</tomcat.version>
+    <aws.sdk.version>1.11.224</aws.sdk.version>
   </properties>
   <dependencies>
     <dependency>
@@ -41,6 +42,52 @@
         <artifactId>tomcat-jsp-api</artifactId>
         <version>${tomcat.version}</version>
     </dependency>
+    <dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-s3</artifactId>
+			<version>${aws.sdk.version}</version>
+    </dependency>
+    <dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-elasticbeanstalk</artifactId>
+			<version>${aws.sdk.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-lambda</artifactId>
+			<version>${aws.sdk.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-cloudformation</artifactId>
+			<version>${aws.sdk.version}</version>
+		</dependency>
+		  <dependency>
+		    <groupId>com.amazonaws</groupId>
+		    <artifactId>aws-java-sdk</artifactId>
+		    <version>1.11.106</version>
+		  </dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.5</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>2.6.7</version>
+		</dependency>
+
+		<!-- test -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
+		</dependency>
+
+    
   </dependencies>
   <build>
     <finalName>Csci380Project</finalName>
@@ -76,6 +123,48 @@
                 </execution>
             </executions>
         </plugin>
+	<plugin>
+      <artifactId>maven-dependency-plugin</artifactId>
+      <version>2.8</version>
+      <executions>
+        <execution>
+          <id>unpack-dynamodb-local</id>
+          <goals>
+            <goal>unpack</goal>
+          </goals>
+          <configuration>
+            <artifactItems>
+              <artifactItem>
+                <groupId>com.jcabi</groupId>
+                <artifactId>DynamoDBLocal</artifactId>
+                <version>2014-10-07</version>
+                <type>zip</type>
+                <outputDirectory>${project.build.directory}/dynamodb-dist</outputDirectory>
+                <overWrite>false</overWrite>
+              </artifactItem>
+            </artifactItems>
+          </configuration>
+        </execution>
+      </executions>
+	</plugin>
+	<plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>1.8</version>
+        <executions>
+          <execution>
+            <id>reserver-dynamodb-port</id>
+            <goals>
+              <goal>reserve-network-port</goal>
+            </goals>
+            <configuration>
+              <portNames>
+                <portName>dynamodblocal.port</portName>
+              </portNames>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 </project>
