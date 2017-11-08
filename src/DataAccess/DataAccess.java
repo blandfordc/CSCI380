@@ -1,4 +1,5 @@
 /*Uses amazon dynamoDB to create and add/delete from tables. */
+package DataAccess;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -74,16 +75,16 @@ public class DataAccess {
      * @see com.amazonaws.auth.ProfilesConfigFile
      * @see com.amazonaws.ClientConfiguration
      */
-    private static void init() throws Exception {
+    public static void init() throws Exception {
         /**
          * Checks the credentials on the current machine
          * you need to have your credentials file in something like
          * nevermind, this ide won't let me type path names in comments
          * for some reason.
          */
-        AWSCredentials credentials = null;
+        BasicAWSCredentials credentials = null;
         try {
-            credentials = new ProfileCredentialsProvider("default").getCredentials();
+            credentials = new BasicAWSCredentials("AKIAIRGVLVCRJULKXVPA", "bHGHuRvmXkuSKeaRuqjh8uiuTyDWkXNN3hoFKF55");
         } catch (Exception e) {
             throw new AmazonClientException(
                     "Cannot load the credentials from the credential profiles file. " +
@@ -94,51 +95,42 @@ public class DataAccess {
         dynamoDB = new AmazonDynamoDBClient(credentials);
         Region usWest2 = Region.getRegion(Regions.US_WEST_2);
         dynamoDB.setRegion(usWest2);
-    }
 
-    public static void main(String[] args) throws Exception {
-        init();
-        disableWarning();
-        try {
-            String tableName = "organizations";//we can change this name if the group wants to do that
-
-            // Create a table with a primary hash key named 'name', which holds a string
-            CreateTableRequest createTableRequest = new CreateTableRequest().withTableName(tableName)
+	String tableName = "organizations";
+	try{
+	 // Create a table with a primary hash key named 'name', which holds a string
+        CreateTableRequest createTableRequest = new CreateTableRequest().withTableName(tableName)
                 .withKeySchema(new KeySchemaElement().withAttributeName("name").withKeyType(KeyType.HASH))
                 .withAttributeDefinitions(new AttributeDefinition().withAttributeName("name").withAttributeType(ScalarAttributeType.S))
                 .withProvisionedThroughput(new ProvisionedThroughput().withReadCapacityUnits(1L).withWriteCapacityUnits(1L));
+	 // Create table if it does not exist yet
+         TableUtils.createTableIfNotExists(dynamoDB, createTableRequest);
+         // wait for the table to move into ACTIVE state
+         TableUtils.waitUntilActive(dynamoDB, tableName);
+	 DescribeTableRequest describeTableRequest = new DescribeTableRequest().withTableName(tableName);
+         TableDescription tableDescription = dynamoDB.describeTable(describeTableRequest).getTable();
+         System.out.println("Table Description: " + tableDescription);
 
-            // Create table if it does not exist yet
-            TableUtils.createTableIfNotExists(dynamoDB, createTableRequest);
-            // wait for the table to move into ACTIVE state
-            TableUtils.waitUntilActive(dynamoDB, tableName);
+	 // Add an item
+         Map<String, AttributeValue> item = newOrganization("Fake organization name", "coming soon, in a theater near you!", "****", "beds available", "some other stuff");
+         addItem(tableName,  item);
 
-            // Describe our new table
-            DescribeTableRequest describeTableRequest = new DescribeTableRequest().withTableName(tableName);
-            TableDescription tableDescription = dynamoDB.describeTable(describeTableRequest).getTable();
-            System.out.println("Table Description: " + tableDescription);
-
-            // Add an item
-            Map<String, AttributeValue> item = newOrganization("Fake organization name", "coming soon, in a theater near you!", "****", "beds available", "some other stuff");
-            addItem(tableName, dynamoDB, item);
-
-            // Add another item
-            item = newOrganization("fake organization name", "123 nonexistent avenue", "abc123", "Needle exchange", "Rehabilitation");
-            addItem(tableName, dynamoDB, item);
+         // Add another item
+         item = newOrganization("fake organization name", "123 nonexistent avenue", "abc123", "Needle exchange", "Rehabilitation");
+         addItem(tableName, item);
 		
-	    //get an item
-            getItemByPrimaryKey(tableName, dynamoDB, "fake organization name");
+	 //get an item
+         getItemByPrimaryKey(tableName, "fake organization name");
             
-            //update an item
-            updateItem(tableName, dynamoDB, "fake organization name", "fake service updated!");
+         //update an item
+         updateItem(tableName, "fake organization name", "fake service updated!");
 		
-	    //delete an item
-            deleteItem(tableName, dynamoDB, "fake organization name");
+	 //delete an item
+         deleteItem(tableName, "fake organization name");
 
-            //print all the stuff in the table with tablename
-            printAll(tableName, dynamoDB);
-
-        } catch (AmazonServiceException ase) {
+         //print all the stuff in the table with tablename
+         printAll(tableName);
+	 } catch (AmazonServiceException ase) {
             System.out.println("Caught an AmazonServiceException, which means your request made it "
                     + "to AWS, but was rejected with an error response for some reason.");
             System.out.println("Error Message:    " + ase.getMessage());
@@ -169,7 +161,7 @@ public class DataAccess {
 
         return item;
     }
-    public static void printAll(String tableName, AmazonDynamoDBClient dynamoDB) {
+    public static void printAll(String tableName) {
     	/**
     	 * This method gets all the entries from a given table name and prints them
     	 * We should probably make it return the actual table itself too, but I'm not
@@ -180,7 +172,7 @@ public class DataAccess {
         ScanResult scanResult = dynamoDB.scan(scanRequest);
         System.out.println("Result: " + scanResult);
     }
-    public static void addItem(String tableName, AmazonDynamoDBClient dynamoDB, Map<String, AttributeValue> item) {
+    public static void addItem(String tableName, Map<String, AttributeValue> item) {
     	/**
     	 * Adds an item to the database with the given tableName. This function can be used
     	 * for any table, because all items will be maps of strings and attribute values. 
@@ -189,7 +181,7 @@ public class DataAccess {
         PutItemResult putItemResult = dynamoDB.putItem(putItemRequest);
         System.out.println("Result: " + putItemResult);
     }
-    public static void deleteItem(String tableName, AmazonDynamoDBClient dynamoDB, String primaryKey) {
+    public static void deleteItem(String tableName, String primaryKey) {
     	/**
     	 * Given a table name and a primary key, delete the item from the database
     	 * if it exists, otherwise do nothing. 
@@ -209,7 +201,7 @@ public class DataAccess {
                 System.err.println(e.getMessage());
             }
     }
-        public static void getItemByPrimaryKey(String tableName, AmazonDynamoDBClient dynamoDB, String primaryKey) {
+        public static void getItemByPrimaryKey(String tableName, String primaryKey) {
     	/**
     	 * Given a table and a primary key, access the item from the database
     	 * If nothing exists, don't do anything.
@@ -229,7 +221,7 @@ public class DataAccess {
             System.err.println(e.getMessage());
         }    	
     }
-   public static void updateItem(String tableName, AmazonDynamoDBClient dynamoDB, String primaryKey, String... service1) {
+   public static void updateItem(String tableName, String primaryKey, String... service1) {
 	   /**
 	    * A method to update our agencies after they have been looked up by their primary key.
 	    * To update agencies in real time.
@@ -237,7 +229,7 @@ public class DataAccess {
 	    * Otherwise, a new item will be created with specified primary key and attributes.
 	    */
 	   
-       UpdateItemSpec updateItemSpec = new UpdateItemSpec().withPrimaryKey(new PrimaryKey("name", primaryKey))
+       /*UpdateItemSpec updateItemSpec = new UpdateItemSpec().withPrimaryKey(new PrimaryKey("name", primaryKey))
     	   .withUpdateExpression("set services = service1")
     	   .withValueMap(new ValueMap().withStringSet("services", service1))
            .withReturnValues(ReturnValue.UPDATED_NEW);
@@ -252,7 +244,7 @@ public class DataAccess {
        catch (Exception e) {
            System.err.println("Unable to update item: " + primaryKey);
            System.err.println(e.getMessage());
-       }
+       }*/
    }
 
 }
