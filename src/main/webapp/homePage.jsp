@@ -62,13 +62,13 @@
       <ul class="menu">
          <li>  <a class="active" href= "#home"><b>Home</b></a>                  </li>
          <br>
-         <li>  <a href="programs.html"><b>Programs</b></a>                      </li>
+         <li>  <a href="programs.jsp"><b>Programs</b></a>                      </li>
          <br>
-         <li>  <a href="houses.html"><b>Halfway Houses</b></a>                  </li>
+         <li>  <a href="houses.jsp"><b>Halfway Houses</b></a>                  </li>
          <br>
-         <li>  <a href="resources.html"><b>Other Resources</b></a>              </li>
+         <li>  <a href="resources.jsp"><b>Other Resources</b></a>              </li>
          <br>
-         <li>  <a href="aboutUs.html"><b>About Us</b></a>                       </li>
+         <li>  <a href="aboutUs.jsp"><b>About Us</b></a>                       </li>
       </ul>
 
       <div class ="welcome">
