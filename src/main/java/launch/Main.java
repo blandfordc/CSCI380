@@ -11,10 +11,13 @@ import org.apache.catalina.webresources.StandardRoot;
 public class Main {
 
     public static void main(String[] args) throws Exception {
-	DataAccess.init();
         String webappDirLocation = "src/main/webapp/";
         Tomcat tomcat = new Tomcat();
-
+        try{
+	    DataAccess.establishConnection();
+	    DataAccess.LoadData();
+	}
+	catch (Exception e){}
         //The port that we should run on can be set into an environment variable
         //Look for that variable and default to 8080 if it isn't there.
         String webPort = System.getenv("PORT");

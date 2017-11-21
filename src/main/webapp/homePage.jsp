@@ -69,6 +69,10 @@
          <li>  <a href="resources.jsp"><b>Other Resources</b></a>              </li>
          <br>
          <li>  <a href="aboutUs.jsp"><b>About Us</b></a>                       </li>
+	 <br>
+	 <li> <a href="login.jsp"><b>Login</b></a>                                </li>
+	 <br>
+	 <li> <a href="createAnOrganization.jsp"><b>New Agency</b></a>                                </li>
       </ul>
 
       <div class ="welcome">

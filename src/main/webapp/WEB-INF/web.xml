@@ -1,19 +1,39 @@
-<!DOCTYPE web-app PUBLIC
- "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
- "http://java.sun.com/dtd/web-app_2_3.dtd" >
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<web-app version="3.0"
+  xmlns="http://java.sun.com/xml/ns/javaee"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+  metadata-complete="true">
 
-
-
-<webapp>
-     <welcome-file-list>
-       <welcome-file>homePage.jsp</welcome-file>
-     </welcome-file-list>
-     <servlet>
-       <servlet-name>homePage</servlet-name>
-         <servlet-class>servlet.homePageServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-         <servlet-name>homePage</servlet-name>
-         <url-pattern></url-pattern>
+ 
+   <servlet>
+      <servlet-name>homePageServlet</servlet-name>
+      <servlet-class>servlet.homePageServlet</servlet-class>
+   </servlet>
+ 
+   <servlet-mapping>
+      <servlet-name>homePageServlet</servlet-name>
+      <url-pattern>/home</url-pattern>
    </servlet-mapping>
-</webapp>
+
+   <servlet>
+      <servlet-name>createAgencyservlet</servlet-name>
+      <servlet-class>servlet.createAgencyservlet</servlet-class>
+   </servlet>
+ 
+   <servlet-mapping>
+      <servlet-name>createAgencyservlet</servlet-name>
+      <url-pattern>/createAgency</url-pattern>
+   </servlet-mapping>
+
+   <servlet>
+      <servlet-name>loginServlet</servlet-name>
+      <servlet-class>servlet.loginServlet</servlet-class>
+   </servlet>
+ 
+   <servlet-mapping>
+      <servlet-name>loginServlet</servlet-name>
+      <url-pattern>/login</url-pattern>
+   </servlet-mapping>
+   
+</web-app>

@@ -3,6 +3,7 @@ package DataAccess;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
@@ -11,7 +12,17 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
+import com.amazonaws.services.dynamodbv2.document.TableKeysAndAttributes;
+import com.amazonaws.services.dynamodbv2.document.BatchGetItemOutcome;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBRangeKey;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 import com.amazonaws.services.dynamodbv2.model.AttributeDefinition;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
@@ -42,17 +53,15 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 
 
-
-/**
- * This class contains methods that interact with an amazon Dynamodb
- * Here we will create tables, add stuff to them, fun stuff like that.
- *
- */
-
-public class DataAccess {
-
+public class DataAccess{
 /**
  * before you can run this code locally or otherwise, you will need to have your
  * valid credentials file in the correct place, mine was configured with the
@@ -82,16 +91,16 @@ public class DataAccess {
      * @see com.amazonaws.auth.ProfilesConfigFile
      * @see com.amazonaws.ClientConfiguration
      */
-    public static void init() throws Exception {
+    public static void establishConnection() throws Exception {
         /**
          * Checks the credentials on the current machine
          * you need to have your credentials file in something like
          * nevermind, this ide won't let me type path names in comments
          * for some reason.
          */
-        BasicAWSCredentials credentials = null;
+        AWSCredentials credentials = null;
         try {
-            credentials = new BasicAWSCredentials("AKIAIRGVLVCRJULKXVPA", "bHGHuRvmXkuSKeaRuqjh8uiuTyDWkXNN3hoFKF55");
+            credentials = new ProfileCredentialsProvider().getCredentials();
         } catch (Exception e) {
             throw new AmazonClientException(
                     "Cannot load the credentials from the credential profiles file. " +
@@ -105,7 +114,7 @@ public class DataAccess {
 
 	String tableName = "organizations";
 	try{
-	 // Create a table with a primary hash key named 'name', which holds a string
+	 // Create a table with a primary hash key named ID, which contains an integer
         CreateTableRequest createTableRequest = new CreateTableRequest().withTableName(tableName)
                 .withKeySchema(new KeySchemaElement().withAttributeName("name").withKeyType(KeyType.HASH))
                 .withAttributeDefinitions(new AttributeDefinition().withAttributeName("name").withAttributeType(ScalarAttributeType.S))
@@ -135,8 +144,7 @@ public class DataAccess {
 	 //delete an item
          deleteItem(tableName, "fake organization name");
 
-         //print all the stuff in the table with tablename
-         printAll(tableName);
+
 	 } catch (AmazonServiceException ase) {
             System.out.println("Caught an AmazonServiceException, which means your request made it "
                     + "to AWS, but was rejected with an error response for some reason.");
@@ -151,9 +159,12 @@ public class DataAccess {
                     + "such as not being able to access the network.");
             System.out.println("Error Message: " + ace.getMessage());
         }
+	 List<Map<String, AttributeValue>> theList = printAll(tableName);
+
+
     }
 
-    private static Map<String, AttributeValue> newOrganization(String name, String location, String password, String... services) {
+    public static Map<String, AttributeValue> newOrganization(String name, String location, String password, String... services) {
     	/**
     	 * This method creates a map of attribute name to attribute value. DynamoDB allows us to insert such maps
     	 * directly into the database with no sequel involved, how convenient! This specific one is for Organizations, and
@@ -168,7 +179,7 @@ public class DataAccess {
 
         return item;
     }
-    public static void printAll(String tableName) {
+    public static List<Map<String, AttributeValue>> printAll(String tableName) {
     	/**
     	 * This method gets all the entries from a given table name and prints them
     	 * We should probably make it return the actual table itself too, but I'm not
@@ -178,8 +189,11 @@ public class DataAccess {
         ScanRequest scanRequest = new ScanRequest(tableName);
         ScanResult scanResult = dynamoDB.scan(scanRequest);
         System.out.println("Result: " + scanResult);
+	List<Map<String,AttributeValue>> attributeValues = scanResult.getItems();
+	return attributeValues;
     }
-    public static void addItem(String tableName, Map<String, AttributeValue> item) {
+
+        public static void addItem(String tableName, Map<String, AttributeValue> item) {
     	/**
     	 * Adds an item to the database with the given tableName. This function can be used
     	 * for any table, because all items will be maps of strings and attribute values. 
@@ -208,7 +222,7 @@ public class DataAccess {
                 System.err.println(e.getMessage());
             }
     }
-        public static void getItemByPrimaryKey(String tableName, String primaryKey) {
+    public static Map<String, Object> getItemByPrimaryKey(String tableName, String primaryKey) {
     	/**
     	 * Given a table and a primary key, access the item from the database
     	 * If nothing exists, don't do anything.
@@ -221,12 +235,14 @@ public class DataAccess {
             System.out.println("Attempting to read the item...");
             Item outcome = table.getItem(getItemSpec);
             System.out.println("GetItem succeeded: " + outcome);
+	    return outcome.asMap();
             
         }
         catch (Exception e) {
             System.err.println("Unable to read item: " + primaryKey);
             System.err.println(e.getMessage());
-        }    	
+	    return null;
+        }
     }
    public static void updateItem(String tableName, String primaryKey, String... service1) {
 	   /**
@@ -254,7 +270,25 @@ public class DataAccess {
 	   }*/
    }
 
-    private static void loadData(String tableName, String jsonFile){
+    public static void LoadData(){
+	JSONParser parser = new JSONParser();
+	try{
+	    JSONArray services = (JSONArray) parser.parse(new FileReader("/Users/admin/Desktop/Csci-380/src/main/java/DataAccess/services.json"));
+	    for(Object o : services){
+		JSONObject service = (JSONObject) o;
+		String name = (String) service.get("name");
+		String Location = (String) service.get("location");
+		String password = "lol they all have the same password now lol";
+	        JSONArray Services = (JSONArray) service.get("services");
+		String s = Services.toString();
+		Map<String, AttributeValue> newOrg = newOrganization(name, Location, password, s);
+		addItem("organizations", newOrg);
+		System.out.println(newOrg);
+	    }
+	    
+	}
+	catch(Exception e){System.out.println(e);}
+
     }
 
 }

@@ -1,0 +1,23 @@
+package servlet;
+
+
+import java.io.*;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+
+import DataAccess.*;
+import javax.servlet.*;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.*;
+
+@WebServlet(
+	    name ="homePageServlet",
+	    urlPatterns = {"/home"}
+	    )
+
+	    public class createAgencyservlet extends HttpServlet{
+
+
+	    }
