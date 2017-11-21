@@ -60,7 +60,7 @@
 
    <body>
       <ul class="menu">
-         <li>  <a href="homePage.jsp"><b>Home</b></a>                                    </li>
+         <li>  <a href="/home"><b>Home</b></a>                                    </li>
          <br>
          <li>  <a href="programs.jsp"><b>Programs</b></a>                                </li>
          <br>
