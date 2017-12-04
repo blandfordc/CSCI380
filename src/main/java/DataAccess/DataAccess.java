@@ -128,21 +128,21 @@ public class DataAccess{
          System.out.println("Table Description: " + tableDescription);
 
 	 // Add an item
-         Map<String, AttributeValue> item = newOrganization("Fake organization name", "coming soon, in a theater near you!", "****", "beds available", "some other stuff");
-         addItem(tableName,  item);
+         //Map<String, AttributeValue> item = newOrganization("Fake organization name", "coming soon, in a theater near you!", "****", "beds available", "some other stuff");
+         //addItem(tableName,  item);
 
          // Add another item
-         item = newOrganization("fake organization name", "123 nonexistent avenue", "abc123", "Needle exchange", "Rehabilitation");
-         addItem(tableName, item);
+         //item = newOrganization("fake organization name", "123 nonexistent avenue", "abc123", "Needle exchange", "Rehabilitation");
+         //addItem(tableName, item);
 		
 	 //get an item
-         getItemByPrimaryKey(tableName, "fake organization name");
+         //getItemByPrimaryKey(tableName, "fake organization name");
             
          //update an item
-         updateItem(tableName, "fake organization name", "fake service updated!");
+         //updateItem(tableName, "fake organization name", "fake service updated!");
 		
 	 //delete an item
-         deleteItem(tableName, "fake organization name");
+         //deleteItem(tableName, "fake organization name");
 
 
 	 } catch (AmazonServiceException ase) {

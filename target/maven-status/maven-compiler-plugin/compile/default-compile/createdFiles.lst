@@ -1,6 +1,7 @@
-servlet/createAgencyservlet.class
-servlet/HelloServlet.class
-servlet/loginServlet.class
 servlet/homePageServlet.class
 DataAccess/DataAccess.class
 launch/Main.class
+servlet/createAgencyservlet.class
+servlet/HelloServlet.class
+servlet/loginServlet.class
+servlet/deleteServlet.class

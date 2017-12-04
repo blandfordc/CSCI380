@@ -80,7 +80,7 @@ div{
 		<br>
 		<li>  <a href="resources.jsp"><b>Other Resources</b></a>                         </li>
 		<br>
-		<li>  <a href="aboutus.jsp"><b>About Us</b></a>									 </li>
+		<li>  <a href="aboutus.jsp"><b>About Us</b></a>				</li>
 		<br>
 		<li>  <a class="active" href="#login"><b>Login</b></a>                      </li>
 	 </ul>
