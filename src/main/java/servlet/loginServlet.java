@@ -11,7 +11,10 @@ import javax.servlet.*;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 
-
+@WebServlet(
+	    name ="loginServlet",
+	    urlPatterns = {"/login"}
+	    )
 
 
 
