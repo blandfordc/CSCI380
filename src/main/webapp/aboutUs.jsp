@@ -77,7 +77,7 @@
             <p> Luke, Joe, Cary, Michael, Alban</p>
             <p> Amateur Coders</p>
             <p> We're trying our hardest</p>
-            <p> Contact us @ [censored]</p>
+            <p> Contact us @ Topics in CS class</p>
             <p> text n stuff here.... </p>
             <p> text n stuff here.... </p>
             <p> text n stuff here.... </p>

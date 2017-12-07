@@ -56,6 +56,9 @@ import javax.servlet.http.*;
 
 		    }
 		    else{try{
+				out.println("<script type=\"text/javascript\">");
+				out.println("alert('User or password incorrect');");
+				out.println("</script>");
 			    response.sendRedirect("/login.jsp");
 			}
 			finally{out.close(); }}
