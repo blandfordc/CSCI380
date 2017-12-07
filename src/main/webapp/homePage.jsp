@@ -6,7 +6,9 @@
       <title>Heroin Home Page</title>
       <!-- link rel="stylesheet" href="" -->
       <style>
-
+       #map {
+        height: 100%;
+      }
       body{
          text-shadow: 1px 1px 1px black!important; 
          background-image: url("gradient.jpeg");
@@ -59,6 +61,46 @@
    </head>
 
    <body>
+     <div id="map" align="center"></div>
+    <script>
+     var origin = '3800 Victory Pkwy, Cincinnati, OH 45207';
+     var destination = '5716 Kroegermount drive';
+
+     var service = new google.maps.DistanceMatrixService();
+     service.getDistanceMatrix(
+     {
+     origins: [origin],
+     destinations: [destination],
+     travelMode: 'DRIVING',
+     transitOptions: TransitOptions,
+     drivingOptions: DrivingOptions,
+     unitSystem: UnitSystem,
+     avoidHighways: Boolean,
+     avoidTolls: Boolean,
+     }, callback);
+
+     function callback(response, status) {
+     if (status == 'OK') {
+     var origins = response.originAddresses;
+    var destinations = response.destinationAddresses;
+
+    for (var i = 0; i < origins.length; i++) {
+      var results = response.rows[i].elements;
+      for (var j = 0; j < results.length; j++) {
+        var element = results[j];
+        var distance = element.distance.text;
+        var duration = element.duration.text;
+        var from = origins[i];
+        var to = destinations[j];
+      }
+    }
+}
+}
+
+    </script>
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCu-onDKmlppLPe-8OZIiuoGAO0alno5dg&callback=callback">
+    </script>
       <ul class="menu">
          <li>  <a class="active" href= "#home"><b>Home</b></a>                  </li>
          <br>
@@ -97,6 +139,8 @@
 
          </b>
       </div>
+
+
 
    </body>
 

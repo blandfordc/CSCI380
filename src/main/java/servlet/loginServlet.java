@@ -55,7 +55,9 @@ import javax.servlet.http.*;
 
 
 		    }
-		    else{try{out.println("wrong");}
+		    else{try{
+			    response.sendRedirect("/login.jsp");
+			}
 			finally{out.close(); }}
 		   
 
